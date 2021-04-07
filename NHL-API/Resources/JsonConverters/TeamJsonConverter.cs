@@ -31,8 +31,13 @@ namespace NHL_API.Resources.JsonConverters
             var venue = (JObject)basicInfo.SelectToken("venue");
             team.VenueName = (string)venue["name"];
 
+            // Get the stats.
             var teamStats = JObject.Parse(teamStatsJson)
                 .SelectToken("stats[0].splits[0].stat");
+            if (teamStats == null)
+            {
+                return team;
+            }
 
             // Fill in the stats.
             team.GamesPlayed = (int)teamStats["gamesPlayed"];

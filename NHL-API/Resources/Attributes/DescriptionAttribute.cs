@@ -5,7 +5,7 @@ namespace NHL_API.Resources.Attributes
     /// <summary>
     /// Specifies the description for an enum.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Enum)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Enum)]
     public class DescriptionAttribute : System.ComponentModel.DescriptionAttribute
     {
         public DescriptionAttribute() { }

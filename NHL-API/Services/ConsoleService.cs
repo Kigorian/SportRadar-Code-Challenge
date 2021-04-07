@@ -7,6 +7,8 @@ namespace NHL_API.Services
 {
     public class ConsoleService
     {
+        #region Get From User
+
         /// <summary>
         /// Asks the user for the pipeline type using the console.
         /// </summary>
@@ -15,7 +17,7 @@ namespace NHL_API.Services
         {
             while (true)
             {
-                Console.WriteLine("Would you like to query for Team or Player results?");
+                WriteParagraph("Would you like to query for Team or Player results?");
                 var pipelineTypeChoice = Console.ReadLine();
 
                 switch (pipelineTypeChoice.ToLower().Trim().TrimEnd('s'))
@@ -27,8 +29,7 @@ namespace NHL_API.Services
                         return PipelineType.Player;
 
                     default:
-                        Console.WriteLine();
-                        WriteLineInColor(
+                        WriteParagraphInColor(
                             $"\"{pipelineTypeChoice}\" is not a valid option.",
                             ConsoleColor.Red
                         );
@@ -49,8 +50,7 @@ namespace NHL_API.Services
 
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine(
+                WriteParagraph(
                     $"Please enter the ID for the {pipelineTypeDescription} " +
                     $"you would like to view."
                 );
@@ -62,8 +62,7 @@ namespace NHL_API.Services
                 }
                 else
                 {
-                    Console.WriteLine();
-                    WriteLineInColor(
+                    WriteParagraphInColor(
                         $"\"{userInput}\" is not a valid option. " +
                         $"Please enter the ID as a positive integer.",
                         ConsoleColor.Red
@@ -85,31 +84,26 @@ namespace NHL_API.Services
             var minYear = 1900;
 
             // Find the year of the current season, and use it as the maximum boundary.
-            var currentSeasonUrl = "https://statsapi.web.nhl.com/api/v1/seasons/current";
-            var currentSeasonJson = ApiService.GetJsonResponse(currentSeasonUrl);
-            var currentSeasonJObject = (JObject)JObject.Parse(currentSeasonJson)
-                .SelectToken("seasons[0]");
-
-            var currentSeasonIdString = (string)currentSeasonJObject["seasonId"];
-            var currentSeasonStartYearString = currentSeasonIdString
-                .Substring(0, currentSeasonIdString.Length / 2);
-            var currentSeasonStartYear = int.Parse(currentSeasonStartYearString);
+            var currentSeason = ApiService.GetSeasonData();
+            var currentSeasonStartYear = currentSeason.StartYear;
 
             int year;
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine("Which year would you like to view?");
+                WriteParagraph("Which year would you like to view?");
                 var userInput = Console.ReadLine();
 
-                if (int.TryParse(userInput, out year) && year > minYear && year <= currentSeasonStartYear)
+                if (
+                    int.TryParse(userInput, out year)
+                    && year >= minYear
+                    && year <= currentSeasonStartYear
+                )
                 {
                     break;
                 }
                 else
                 {
-                    Console.WriteLine();
-                    WriteLineInColor(
+                    WriteParagraphInColor(
                         $"\"{userInput}\" is not a valid option. " +
                         $"Please enter a valid year between {minYear} and {currentSeasonStartYear}",
                         ConsoleColor.Red
@@ -131,8 +125,7 @@ namespace NHL_API.Services
 
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine("Please specify the directory to save the file to.");
+                WriteParagraph("Please specify the directory to save the file to.");
                 path = Console.ReadLine();
 
                 if (Directory.Exists(path))
@@ -141,8 +134,7 @@ namespace NHL_API.Services
                 }
                 else
                 {
-                    Console.WriteLine();
-                    WriteLineInColor(
+                    WriteParagraphInColor(
                         $"No directory found at \"{path}\". " +
                         $"Please enter the path to an existing directory.",
                         ConsoleColor.Red
@@ -165,14 +157,12 @@ namespace NHL_API.Services
 
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine("Choose a name for your file (without the extension).");
+                WriteParagraph("Choose a name for your file (without the extension).");
                 name = Console.ReadLine();
 
                 if (File.Exists($"{directoryPath}/{name}.csv"))
                 {
-                    Console.WriteLine();
-                    Console.WriteLine(
+                    WriteParagraph(
                         "A file with that name already exists. " +
                         "Do you wish to overwrite it? (Y/N)"
                     );
@@ -193,6 +183,36 @@ namespace NHL_API.Services
         }
 
         /// <summary>
+        /// Asks the user if they would like to run the program again from the beginning.
+        /// </summary>
+        /// <returns></returns>
+        public static bool GetTryAgainChoice(bool success = false)
+        {
+            var tryAgainMessage = success
+                ? "File saved successfully. Import another file? (Y/N)"
+                : "Try again from the beginning? (Y/N)";
+
+            WriteParagraph(tryAgainMessage);
+
+            var again = Console.ReadLine();
+
+            return again.ToLower() == "y" || again.ToLower() == "yes";
+        }
+
+        #endregion Get From User
+
+        #region Console Writes
+
+        /// <summary>
+        /// Prints a new empty line, then a new line with the given value.
+        /// </summary>
+        public static void WriteParagraph(string value)
+        {
+            Console.WriteLine();
+            Console.WriteLine(value);
+        }
+
+        /// <summary>
         /// Calls Console.WriteLine(), but prints in the specified color.
         /// </summary>
         /// <param name="color"></param>
@@ -205,5 +225,33 @@ namespace NHL_API.Services
             Console.WriteLine(value);
             Console.ForegroundColor = originalColor;
         }
+
+        /// <summary>
+        /// Prints a new empty line, then calls WriteLineInColor().
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="message"></param>
+        public static void WriteParagraphInColor(string value, ConsoleColor color)
+        {
+            Console.WriteLine();
+            WriteLineInColor(value, color);
+        }
+
+        public static void PrintException(Exception e, string customMessage = null)
+        {
+            if (!string.IsNullOrWhiteSpace(customMessage))
+            {
+                WriteParagraphInColor(
+                    customMessage,
+                    ConsoleColor.Red
+                );
+            }
+            WriteLineInColor(
+                e.Message,
+                ConsoleColor.Red
+            );
+        }
+
+        #endregion Console Writes
     }
 }

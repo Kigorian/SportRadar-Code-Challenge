@@ -16,7 +16,7 @@ namespace NHL_API.Resources.JsonConverters
             var player = new Player();
 
             var basicInfo = (JObject)JObject.Parse(basicInfoJson)
-                .SelectToken("players[0]");
+                .SelectToken("people[0]");
 
             if (basicInfo == null)
             {
@@ -38,8 +38,13 @@ namespace NHL_API.Resources.JsonConverters
             var primaryPosition = (JObject)basicInfo.SelectToken("primaryPosition");
             player.PositionName = (string)primaryPosition["name"];
 
+            // Get the stats.
             var playerStats = JObject.Parse(playerStatsJson)
                 .SelectToken("stats[0].splits[0].stat");
+            if (playerStats == null)
+            {
+                return player;
+            }
 
             // Fill in the stats.
             player.Assists = (int)playerStats["assists"];
