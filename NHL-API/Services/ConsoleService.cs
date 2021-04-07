@@ -37,6 +37,12 @@ namespace NHL_API.Services
             }
         }
 
+        /// <summary>
+        /// Prompts the user for the ID of the <see cref="Model.Team"/> or <see cref="Model.Player"/>
+        /// that they wish to search.
+        /// </summary>
+        /// <param name="pipelineTypeDescription"></param>
+        /// <returns></returns>
         public static int GetEntityId(string pipelineTypeDescription)
         {
             int id;
@@ -68,12 +74,17 @@ namespace NHL_API.Services
             return id;
         }
 
+        /// <summary>
+        /// Prompts the user for a year; this also hits the API to find the current season,
+        /// and won't allow year selections past the current season.
+        /// </summary>
+        /// <returns></returns>
         public static int GetYear()
         {
-            // Set some boundaries.
+            // Set a minimum boundary.
             var minYear = 1900;
 
-            //var currentYear = DateTime.Now.Year;
+            // Find the year of the current season, and use it as the maximum boundary.
             var currentSeasonUrl = "https://statsapi.web.nhl.com/api/v1/seasons/current";
             var currentSeasonJson = ApiService.GetJsonResponse(currentSeasonUrl);
             var currentSeasonJObject = (JObject)JObject.Parse(currentSeasonJson)
@@ -109,7 +120,12 @@ namespace NHL_API.Services
             return year;
         }
 
-        public static string GetFilePath()
+        /// <summary>
+        /// Prompts the user for a directory path, and checks to see if there is a valid
+        /// directory at that path.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetDirectoryPath()
         {
             string path;
 
@@ -137,7 +153,13 @@ namespace NHL_API.Services
             return path;
         }
 
-        public static string GetFileName(string directoryPath)
+        /// <summary>
+        /// Prompts the user for a file name, and checks to see if there is an existing CSV file
+        /// with that name.
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        /// <returns></returns>
+        public static string GetCsvFileName(string directoryPath)
         {
             string name;
 

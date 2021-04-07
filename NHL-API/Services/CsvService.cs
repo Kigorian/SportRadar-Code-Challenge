@@ -8,6 +8,13 @@ namespace NHL_API.Services
 {
     public class CsvService
     {
+        /// <summary>
+        /// Generates a CSV string for the given list of objects. Headers are automatically
+        /// assigned based on the object's property names.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectlist"></param>
+        /// <returns>A CSV file string, complete with headers.</returns>
         public static string ToCsv<T>(IEnumerable<T> objectlist)
         {
             Type t = typeof(T);
@@ -26,6 +33,12 @@ namespace NHL_API.Services
             return csvdata.ToString();
         }
 
+        /// <summary>
+        /// Generates a row of CSV data from the given properties.
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <param name="o"></param>
+        /// <returns>A string for a single row of CSV data.</returns>
         private static string ToCsvFields(PropertyInfo[] properties, object o)
         {
             StringBuilder csv = new StringBuilder();

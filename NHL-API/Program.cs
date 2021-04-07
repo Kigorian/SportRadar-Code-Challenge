@@ -39,8 +39,8 @@ namespace NHL_API
             }
 
             // Get the file path info from the user.
-            var directoryPath = ConsoleService.GetFilePath();
-            var fileName = ConsoleService.GetFileName(directoryPath);
+            var directoryPath = ConsoleService.GetDirectoryPath();
+            var fileName = ConsoleService.GetCsvFileName(directoryPath);
             var filePath = $"{directoryPath}/{fileName}";
             
             // Save the CSV file.

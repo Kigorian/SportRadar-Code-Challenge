@@ -1,5 +1,8 @@
 ﻿namespace NHL_API.Model
 {
+	/// <summary>
+	/// Represents a Player on an NHL hockey team.
+	/// </summary>
     public class Player
     {
 		public int ID { get; set; }
