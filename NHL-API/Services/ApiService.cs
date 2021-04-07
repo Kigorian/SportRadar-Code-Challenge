@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using NHL_API.Model;
+using NHL_API.Resources.JsonConverters;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -17,38 +18,18 @@ namespace NHL_API.Services
         /// <returns></returns>
         public static Team GetTeamData(int teamId, int year)
         {
-            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
-
-            // Get the basic Team info.
-            var basicInfoJson = GetJsonResponse($"{baseUrl}/teams/{teamId}");
-            var basicInfoJObject = (JObject)JObject.Parse(basicInfoJson)
-                .SelectToken("teams[0]");
-
-            // Create and fill the Team object.
-            //var team = TeamJsonConverter.SerializeToObject(basicInfoJObject);
-            var team = new Team();
-
-            team.ID = (int)basicInfoJObject["id"];
-            team.Name = (string)basicInfoJObject["name"];
-
-            var venueJObject = (JObject)basicInfoJObject.SelectToken("venue");
-            team.VenueName = (string)venueJObject["name"];
-
-            // Get the Team's stats for the given season.
+            // Get the season for the given year.
             var season = GetSeasonFromYear(year);
 
+            // Get the JSON from the API.
+            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
+            var basicInfoJson = GetJsonResponse($"{baseUrl}/teams/{teamId}");
             var teamStatsJson = GetJsonResponse(
                 $"{baseUrl}/teams/{teamId}/stats?stats=statsSingleSeason&season={season}"
             );
-            var teamStatsJObject = JObject.Parse(teamStatsJson)
-                .SelectToken("stats[0].splits[0].stat");
-
-            // Fill in the stats.
-            team.GamesPlayed = (int)teamStatsJObject["gamesPlayed"];
-            team.Wins = (int)teamStatsJObject["wins"];
-            team.Losses = (int)teamStatsJObject["losses"];
-            team.Points = (int)teamStatsJObject["pts"];
-            team.GoalsPerGame = (int)teamStatsJObject["goalsPerGame"];
+            
+            // Serialize the JSON to a Team object.
+            var team = TeamJsonConverter.SerializeToObject(basicInfoJson, teamStatsJson);
 
             return team;
         }
@@ -61,44 +42,18 @@ namespace NHL_API.Services
         /// <returns></returns>
         public static Player GetPlayerData(int playerId, int year)
         {
-            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
-
-            // Get the basic Player info.
-            var basicInfoJson = GetJsonResponse($"{baseUrl}/people/{playerId}");
-            var basicInfoJObject = (JObject)JObject.Parse(basicInfoJson)
-                .SelectToken("people[0]");
-
-            // Create and fill the Player object.
-            //var player = PlayerJsonConverter.SerializeToObject(basicInfoJObject);
-            var player = new Player();
-
-            player.ID = (int)basicInfoJObject["id"];
-            player.Name = (string)basicInfoJObject["fullName"];
-            player.Age = (int)basicInfoJObject["currentAge"];
-            player.Number = (int)basicInfoJObject["primaryNumber"];
-            player.IsRookie = (bool)basicInfoJObject["rookie"];
-
-            var currentTeamJObject = (JObject)basicInfoJObject.SelectToken("currentTeam");
-            player.CurrentTeamName = (string)currentTeamJObject["name"];
-
-            var primaryPositionJObject = (JObject)basicInfoJObject.SelectToken("primaryPosition");
-            player.PositionName = (string)primaryPositionJObject["name"];
-
             // Get the Player's stats for the given season.
             var season = GetSeasonFromYear(year);
 
+            // Get the JSON from the API.
+            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
+            var basicInfoJson = GetJsonResponse($"{baseUrl}/people/{playerId}");
             var playerStatsJson = GetJsonResponse(
                 $"{baseUrl}/people/{playerId}/stats?stats=statsSingleSeason&season={season}"
             );
-            var playerStatsJObject = JObject.Parse(playerStatsJson)
-                .SelectToken("stats[0].splits[0].stat");
 
-            // Fill in the stats.
-            player.Assists = (int)playerStatsJObject["assists"];
-            player.Goals = (int)playerStatsJObject["goals"];
-            player.Games = (int)playerStatsJObject["games"];
-            player.Hits = (int)playerStatsJObject["hits"];
-            player.Points = (int)playerStatsJObject["points"];
+            // Serialize the JSON to a Player object.
+            var player = PlayerJsonConverter.SerializeToObject(basicInfoJson, playerStatsJson);
 
             return player;
         }
