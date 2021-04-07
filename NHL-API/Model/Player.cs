@@ -6,13 +6,13 @@
 
 		public string Name { get; set; }
 
-		public string CurrentTeam { get; set; }
+		public string CurrentTeamName { get; set; }
 
 		public int Age { get; set; }
 
 		public int Number { get; set; }
 
-		public string Position { get; set; }
+		public string PositionName { get; set; }
 
 		public bool IsRookie { get; set; }
 

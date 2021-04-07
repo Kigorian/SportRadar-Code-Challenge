@@ -25,15 +25,15 @@ namespace NHL_API
             var entityId = GetEntityIdFromConsole(pipelineTypeDescription);
             var year = GetYearFromConsole();
 
-            string csv = "";
+            string csv;
             switch (pipelineType)
             {
-                case PipelineType.Teams:
+                case PipelineType.Team:
                     var team = GetTeamData(entityId, year);
                     csv = ToCsv(new List<Team>() { team });
                     break;
 
-                case PipelineType.Players:
+                case PipelineType.Player:
                     var player = GetPlayerData(entityId, year);
                     csv = ToCsv(new List<Player>() { player });
                     break;
@@ -65,10 +65,10 @@ namespace NHL_API
                 switch (pipelineTypeChoice.ToLower().Trim().TrimEnd('s'))
                 {
                     case "team":
-                        return PipelineType.Teams;
+                        return PipelineType.Team;
 
                     case "player":
-                        return PipelineType.Players;
+                        return PipelineType.Player;
 
                     default:
                         Console.WriteLine();
@@ -114,15 +114,28 @@ namespace NHL_API
 
         private static int GetYearFromConsole()
         {
-            int year;
+            // Set some boundaries.
+            var minYear = 1900;
 
+            //var currentYear = DateTime.Now.Year;
+            var currentSeasonUrl = "https://statsapi.web.nhl.com/api/v1/seasons/current";
+            var currentSeasonJson = GetJsonResponse(currentSeasonUrl);
+            var currentSeasonJObject = (JObject)JObject.Parse(currentSeasonJson)
+                .SelectToken("seasons[0]");
+
+            var currentSeasonIdString = (string)currentSeasonJObject["seasonId"];
+            var currentSeasonStartYearString = currentSeasonIdString
+                .Substring(0, currentSeasonIdString.Length / 2);
+            var currentSeasonStartYear = int.Parse(currentSeasonStartYearString);
+
+            int year;
             while (true)
             {
                 Console.WriteLine();
                 Console.WriteLine("Which year would you like to view?");
                 var userInput = Console.ReadLine();
 
-                if (int.TryParse(userInput, out year) && year > 0)
+                if (int.TryParse(userInput, out year) && year > minYear && year <= currentSeasonStartYear)
                 {
                     break;
                 }
@@ -131,7 +144,7 @@ namespace NHL_API
                     Console.WriteLine();
                     WriteLineInColor(
                         $"\"{userInput}\" is not a valid option. " +
-                        $"Please enter the year as a number",
+                        $"Please enter a valid year between {minYear} and {currentSeasonStartYear}",
                         ConsoleColor.Red
                     );
                 }
@@ -158,13 +171,9 @@ namespace NHL_API
             team.Name = (string)basicInfoJObject["name"];
 
             var venueJObject = (JObject)basicInfoJObject.SelectToken("venue");
-            //team.Venue = new Venue()
-            //{
-            //    Name = (string)venueJObject["name"],
-            //};
             team.VenueName = (string)venueJObject["name"];
 
-            // Get the Team Stats info.
+            // Get the Team's Stats.
             var teamStatsJson = GetJsonResponse($"{baseUrl}/teams/{teamId}/stats");
             var teamStatsJObject = JObject.Parse(teamStatsJson)
                 .SelectToken("stats[0].splits[0].stat");
@@ -180,7 +189,47 @@ namespace NHL_API
 
         private static Player GetPlayerData(int playerId, int year)
         {
-            return new Player();
+            var baseUrl = "https://statsapi.web.nhl.com/api/v1";
+            //var base = ConfigurationManager.AppSettings["NHL-API"];
+
+            // Get the basic Player info.
+            var basicInfoJson = GetJsonResponse($"{baseUrl}/people/{playerId}");
+            var basicInfoJObject = (JObject)JObject.Parse(basicInfoJson)
+                .SelectToken("people[0]");
+
+            // Create and fill the Player object.
+            //var player = PlayerJsonConverter.SerializeToObject(basicInfoJObject);
+            var player = new Player();
+
+            player.ID = (int)basicInfoJObject["id"];
+            player.Name = (string)basicInfoJObject["fullName"];
+            player.Age = (int)basicInfoJObject["currentAge"];
+            player.Number = (int)basicInfoJObject["primaryNumber"];
+            player.IsRookie = (bool)basicInfoJObject["rookie"];
+
+            var currentTeamJObject = (JObject)basicInfoJObject.SelectToken("currentTeam");
+            player.CurrentTeamName = (string)currentTeamJObject["name"];
+
+            var primaryPositionJObject = (JObject)basicInfoJObject.SelectToken("primaryPosition");
+            player.PositionName = (string)primaryPositionJObject["name"];
+
+            // Get the Player's Stats for the given season.
+            var nextYear = year + 1;
+            var season = $"{year}{nextYear}";
+
+            var playerStatsJson = GetJsonResponse(
+                $"{baseUrl}/people/{playerId}/stats?stats=statsSingleSeason&season={season}"
+            );
+            var playerStatsJObject = JObject.Parse(playerStatsJson)
+                .SelectToken("stats[0].splits[0].stat");
+
+            player.Assists = (int)playerStatsJObject["assists"];
+            player.Goals = (int)playerStatsJObject["goals"];
+            player.Games = (int)playerStatsJObject["games"];
+            player.Hits = (int)playerStatsJObject["hits"];
+            player.Points = (int)playerStatsJObject["points"];
+
+            return player;
         }
 
         private static string GetFilePathFromConsole()

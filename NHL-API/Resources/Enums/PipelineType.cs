@@ -4,10 +4,10 @@ namespace NHL_API.Resources.Enums
 {
     public enum PipelineType : short
     {
-        [Description("teams")]
-        Teams,
+        [Description("team")]
+        Team,
 
-        [Description("people")]
-        Players,
+        [Description("player")]
+        Player,
     }
 }
