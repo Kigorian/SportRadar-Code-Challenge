@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHL-API", "NHL-API\NHL-API.csproj", "{9CF234FE-08C1-4549-900D-3E9CC4DB4E7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHL_API", "NHL-API\NHL_API.csproj", "{9CF234FE-08C1-4549-900D-3E9CC4DB4E7C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3DF8A583-38B0-4943-9DBC-85D71C0CD4F3}"
 	ProjectSection(SolutionItems) = preProject
