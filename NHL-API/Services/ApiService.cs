@@ -4,6 +4,7 @@ using NHL_API.Resources.JsonConverters;
 using System;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -57,9 +58,23 @@ namespace NHL_API.Services
             var teamStatsJson = GetJsonResponse(
                 $"{baseUrl}/teams/{teamId}/stats?stats=statsSingleSeason&season={season}"
             );
+            var scheduleJson = GetJsonResponse($"{baseUrl}/schedule?season={season}");
             
             // Serialize the JSON to a Team object.
             var team = TeamJsonConverter.SerializeToObject(basicInfoJson, teamStatsJson);
+
+            // Get the first game from this season.
+            var firstGame = GetTeamFirstGameFromScheduleJson(team.ID, scheduleJson);
+
+            // Set the info from the first game.
+            if (firstGame != null) {
+                team.SeasonFirstGameDate = firstGame.GameDate;
+
+                var opponentName = firstGame.HomeTeam.ID == team.ID
+                    ? firstGame.AwayTeam.Name
+                    : firstGame.HomeTeam.Name;
+                team.SeasonFirstGameOpponent = opponentName;
+            }
 
             return team;
         }
@@ -157,6 +172,25 @@ namespace NHL_API.Services
         {
             var nextYear = year + 1;
             return $"{year}{nextYear}";
+        }
+
+        /// <summary>
+        /// Gets the given team's first game in the given schedule.
+        /// </summary>
+        /// <param name="teamId"></param>
+        /// <param name="scheduleJson"></param>
+        /// <returns></returns>
+        private static Game GetTeamFirstGameFromScheduleJson(int teamId, string scheduleJson)
+        {
+            var schedule = ScheduleJsonConverter.SerializeToObject(scheduleJson);
+
+            return schedule.Games
+                .OrderBy(g => g.GameDate)
+                .FirstOrDefault(
+                    g =>
+                    g.HomeTeam.ID == teamId
+                    || g.AwayTeam.ID == teamId
+                );
         }
 
         #endregion Season

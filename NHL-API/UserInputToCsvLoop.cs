@@ -84,6 +84,7 @@ namespace NHL_API
             catch(Exception e)
             {
                 ConsoleService.PrintException(e, "Error saving file. Details:");
+                return ConsoleService.GetTryAgainChoice();
             }
 
             return ConsoleService.GetTryAgainChoice(success: true);

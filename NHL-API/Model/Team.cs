@@ -1,4 +1,6 @@
-﻿namespace NHL_API.Model
+﻿using System;
+
+namespace NHL_API.Model
 {
     /// <summary>
     /// Represents an NHL hockey team.
@@ -21,5 +23,9 @@
         public int Points { get; set; }
 
         public int GoalsPerGame { get; set; }
+
+        public DateTimeOffset SeasonFirstGameDate { get; set; }
+
+        public string SeasonFirstGameOpponent { get; set; }
     }
 }
