@@ -87,6 +87,8 @@ namespace NHL_API
                 return ConsoleService.GetTryAgainChoice();
             }
 
+            // If all went well, print a success message and ask the user if they'd like
+            // to generate another file.
             return ConsoleService.GetTryAgainChoice(success: true);
         }
     }
