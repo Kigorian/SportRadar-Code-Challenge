@@ -15,5 +15,23 @@ namespace NHL_API.Resources.Enums
 
         [Description("A")]
         AllStarGame,
+
+        [Description("WA")]
+        AllStarWomensGame,
+
+        [Description("O")]
+        OlympicGame,
+
+        [Description("E")]
+        Exhibition,
+        
+        [Description("WCOH_EXH")]
+        WorldCupOfHockey_ExhibitionOrPreseasonGame,
+        
+        [Description("WCOH_PRELIM")]
+        WorldCupOfHockey_PreliminaryGame,
+        
+        [Description("WCOH_FINAL")]
+        WorldCupOfHockey_SemiFinalsAndFinals,
     }
 }
