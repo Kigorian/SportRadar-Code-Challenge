@@ -22,7 +22,7 @@ namespace NHL_API.Model
 
         public int Points { get; set; }
 
-        public int GoalsPerGame { get; set; }
+        public decimal GoalsPerGame { get; set; }
 
         public DateTimeOffset SeasonFirstGameDate { get; set; }
 

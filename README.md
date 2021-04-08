@@ -7,6 +7,8 @@ As a Data Analyst, I want to be able to quickly generate CSV files for a given
 hockey team or player. The data for these CSV files should come from the API at
 https://statsapi.web.nhl.com/api/v1/.
 
+The documentation for this API can be found at https://github.com/sportradarus/sportradar-api-challenge.
+
 ## Expected Behavior
 
 1. Begin a console instance in Visual Studio.
@@ -56,4 +58,10 @@ can be demonstrated with just a few tests.
 
 ## Test Strategy
 
-Test Strategy
+Two tests around the Team pipeline; one to hit the API and compare against some expected values,
+and another to test a non-existent Team ID to verify the proper exception is returned.
+
+As mentioned above, I would do similar tests for the Player pipeline, but those would just be repitions
+of the same idea as the Team pipeline tests.
+
+I could also write some tests for other components, such as the JSON converters and the CSV service.

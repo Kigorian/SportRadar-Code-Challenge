@@ -44,7 +44,7 @@ namespace NHL_API.Resources.JsonConverters
             team.Wins = (int)teamStats["wins"];
             team.Losses = (int)teamStats["losses"];
             team.Points = (int)teamStats["pts"];
-            team.GoalsPerGame = (int)teamStats["goalsPerGame"];
+            team.GoalsPerGame = (decimal)teamStats["goalsPerGame"];
 
             //Game Date of First Game of Season(?)
             //Opponent Name in First Game of Season(?)

@@ -23,11 +23,13 @@ namespace NHL_API.Services
         /// A <see cref="DataResult"/> containing either the Team or an exception, depending
         /// on the success of the API request.
         /// </returns>
-        public static DataResult TryGetTeamData(int teamId, int year)
+        public static DataResult TryGetTeamData(int teamId, int year, string baseUrl = null)
         {
+            baseUrl = baseUrl ?? ConfigurationManager.AppSettings["NhlApiBaseUrl"];
+
             try
             {
-                var team = GetTeamData(teamId, year);
+                var team = GetTeamData(teamId, year, baseUrl);
                 return new DataResult() {
                     EntityResult = team,
                 };
@@ -47,13 +49,12 @@ namespace NHL_API.Services
         /// <param name="teamId"></param>
         /// <param name="year"></param>
         /// <returns></returns>
-        private static Team GetTeamData(int teamId, int year)
+        private static Team GetTeamData(int teamId, int year, string baseUrl)
         {
             // Get the season for the given year.
             var season = GetSeasonFromYear(year);
 
             // Get the JSON from the API.
-            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
             var basicInfoJson = GetJsonResponse($"{baseUrl}/teams/{teamId}");
             var teamStatsJson = GetJsonResponse(
                 $"{baseUrl}/teams/{teamId}/stats?stats=statsSingleSeason&season={season}"
@@ -92,11 +93,13 @@ namespace NHL_API.Services
         /// A <see cref="DataResult"/> containing either the Player or an exception, depending
         /// on the success of the API request.
         /// </returns>
-        public static DataResult TryGetPlayerData(int playerId, int year)
+        public static DataResult TryGetPlayerData(int playerId, int year, string baseUrl = null)
         {
+            baseUrl = baseUrl ?? ConfigurationManager.AppSettings["NhlApiBaseUrl"];
+
             try
             {
-                var player = GetPlayerData(playerId, year);
+                var player = GetPlayerData(playerId, year, baseUrl);
                 return new DataResult()
                 {
                     EntityResult = player,
@@ -117,13 +120,12 @@ namespace NHL_API.Services
         /// <param name="playerId"></param>
         /// <param name="year"></param>
         /// <returns></returns>
-        private static Player GetPlayerData(int playerId, int year)
+        private static Player GetPlayerData(int playerId, int year, string baseUrl)
         {
             // Get the Player's stats for the given season.
             var season = GetSeasonFromYear(year);
 
             // Get the JSON from the API.
-            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
             var basicInfoJson = GetJsonResponse($"{baseUrl}/people/{playerId}");
             var playerStatsJson = GetJsonResponse(
                 $"{baseUrl}/people/{playerId}/stats?stats=statsSingleSeason&season={season}"
@@ -147,14 +149,15 @@ namespace NHL_API.Services
         /// If no year is provided, gets the data for the current season.
         /// </remarks>
         /// <returns></returns>
-        public static Season GetSeasonData(int? startYear = null)
+        public static Season GetSeasonData(string baseUrl = null, int? startYear = null)
         {
+            baseUrl = baseUrl ?? ConfigurationManager.AppSettings["NhlApiBaseUrl"];
+
             // Get the season for the given year.
             var seasonIdString = startYear.HasValue
                 ? GetSeasonFromYear(startYear.Value).ToString()
                 : "current";
 
-            var baseUrl = ConfigurationManager.AppSettings["NhlApiBaseUrl"];
             var seasonJson = GetJsonResponse($"{baseUrl}/seasons/{seasonIdString}");
 
             // Serialize the JSON to a Player object.
